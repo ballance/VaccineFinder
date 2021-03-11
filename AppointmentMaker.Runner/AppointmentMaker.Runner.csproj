@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <AssemblyName>AppointmentMaker.Runner</AssemblyName>
+    <RootNamespace>AppointmentMaker.Runer</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="config\headers.json" />
+    <None Remove="config\headers.json.example.json" />
+    <None Remove="log4net.config" />
+    <None Remove="config\zipsToSearch.txt" />
+    <None Remove="config\zipsToSearchPositives.txt" />
+    <None Remove="config\zipsToSearchUSA.txt" />
+    <None Remove="config\zipsToSearchUSA20000.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AppointmentMaker.Common\AppointmentMaker.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="config\headers.json.example.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\zipsToSearchPositives.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <EmbeddedResource Include="config\zipsToSearchUSA20000.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <Content Include="config\zipsToSearchUSA.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <EmbeddedResource Include="config\zipsToSearch.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="log4net" Version="2.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="config\headers.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="log4net.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

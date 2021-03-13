@@ -9,6 +9,6 @@ https://vaccine-finder-2021.s3.amazonaws.com/index.html
 
 
 ## Todo.txt
- [x] Persist to CSV
- [x] Persist to S3
- [ ] Persist to database
+ - [x] Persist to CSV
+ - [x] Persist to S3
+ - [ ] Persist to database

@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 namespace AppointmentMaker.Common
 {
-	public class AppointmentChecker
+	public class AppointmentChecker : IAppointmentChecker
 	{
 		private static string appointmentEndpointUrl;
 

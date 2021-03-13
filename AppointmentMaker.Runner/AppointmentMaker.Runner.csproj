@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="config\headers.json" />
-    <None Remove="config\headers.json.example.json" />
+    <None Remove="config\configuration.json" />
+    <None Remove="config\configuration.json.example.json" />
     <None Remove="log4net.config" />
     <None Remove="config\zipsToSearch.txt" />
     <None Remove="config\zipsToSearchPositives.txt" />
@@ -18,11 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AppointmentMaker.Common\AppointmentMaker.Common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="config\headers.json.example.json">
+    <Content Include="config\configuration.json.example.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="config\zipsToSearchPositives.txt">
@@ -40,17 +36,25 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Autofac" Version="6.1.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.1.0" />
     <PackageReference Include="log4net" Version="2.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="config\headers.json">
+    <Content Include="config\configuration.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="log4net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AppointmentMaker.Common\AppointmentMaker.Common.csproj" />
   </ItemGroup>
 
 </Project>

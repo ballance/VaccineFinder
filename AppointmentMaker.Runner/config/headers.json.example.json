@@ -1,5 +1,0 @@
-{
-  "cookie": "YOUR_COOKIE_VALUE_HERE",
-  "xsrfToken": "YOUR_XSRF_TOKEN_HERE",
-  "endpoint": "https://BASE_URL/hcschedulersvc/svc/v1/immunizationLocations/availability"
-}

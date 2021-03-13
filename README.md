@@ -1,5 +1,6 @@
 # VaccineFinder
 Find Vaccine appointments by location
+https://vaccine-finder-2021.s3.amazonaws.com/index.html
 
 ## Getting Started
 1. `git clone dotnet build AppointmentMaker.sln`

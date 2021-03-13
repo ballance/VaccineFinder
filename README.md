@@ -1,5 +1,6 @@
 # VaccineFinder
 Find Vaccine appointments by location
+https://vaccine-finder-2021.s3.amazonaws.com/index.html
 
 ## Getting Started
 1. `git clone dotnet build AppointmentMaker.sln`
@@ -8,5 +9,6 @@ Find Vaccine appointments by location
 
 
 ## Todo.txt
- - Persist to database
- - Profit?
+ - [x] Persist to CSV
+ - [x] Persist to S3
+ - [ ] Persist to database

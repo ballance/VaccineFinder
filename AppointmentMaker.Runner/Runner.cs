@@ -43,6 +43,15 @@ namespace AppointmentMaker.Runer
 		}
 		public async Task Run()
 		{
+			// TODO: This is super-hacky, but should work for continuous run.
+			while (true)
+			{
+				await SingleRun();
+			}
+		}
+
+		private async Task SingleRun()
+		{
 			List<Task> tasksToAwait = new List<Task>();
 
 			List<string> zipCodesToTry = LoadZipsFromFile(_zipConfigPath);
@@ -77,13 +86,10 @@ namespace AppointmentMaker.Runer
 
 			var now = DateTime.Now;
 			var csvFilename = $"currentZipAppointmentsAvailable_{now.Hour}_{now.Minute}_{now.Second}.csv";
-			StringBuilder csvData = GenerateCSV(_successfulChecks);
-			StringBuilder defaultCSS = CreateDefaultCSS();
-			StringBuilder htmlData = GenerateHTML(_successfulChecks, csvFilename);
+			StringBuilder csvData = VaccineDataGenerator.GenerateCSV(_successfulChecks);
+			StringBuilder defaultCSS = VaccineDataGenerator.CreateDefaultCSS();
+			StringBuilder htmlData = VaccineDataGenerator.GenerateHTML(_successfulChecks, csvFilename);
 
-
-
-			
 			_publishingManager.Configure(_configuration.bucket, _configuration.awsAccessKey, _configuration.awsSecretKey);
 			await _publishingManager.PublishAsync(csvData.ToString()
 				, csvFilename);
@@ -91,89 +97,9 @@ namespace AppointmentMaker.Runer
 			await _publishingManager.PublishAsync(htmlData.ToString(), "index.html");
 			await _publishingManager.PublishAsync(defaultCSS.ToString(), "default.css");
 
-
 			File.WriteAllText(
 				$"C:\\temp\\currentZipAppointmentsAvailable_{now.Hour}_{now.Minute}_{now.Second}.csv"
 				, csvData.ToString());
-		}
-
-		private StringBuilder GenerateCSV(IEnumerable<AppointmentResponse> successfulChecks)
-		{
-			StringBuilder zipos = new StringBuilder();
-			zipos.AppendLine("zip,state,map");
-			foreach (var success in successfulChecks)
-			{
-				log.Info($"{success.zipCode},{success.stateName}");
-				zipos.Append($"{success.zipCode},{success.stateName},https://www.google.com/maps/place/{success.zipCode}/{Environment.NewLine}");
-			}
-
-			return zipos;
-		}
-
-		private StringBuilder GenerateHTML(IEnumerable<AppointmentResponse> successfulChecks, string csvFilename)
-		{
-			StringBuilder htmlStringBuilder = new StringBuilder();
-			htmlStringBuilder.Append("<html><header>")
-				.Append($"<title>Vaccination appointments available by ZIP Code at {DateTime.UtcNow} UTC. </title>")
-				.Append("<link rel='stylesheet' href='default.css'>")
-				.Append("</header><body>")
-				.Append("<h2>Walgreens appointments available by ZIP Code<h2>")
-				.Append($"<p>Last updated: {DateTime.UtcNow} UTC.<br />")
-				.Append($"<a href='{csvFilename}'>Download as CSV</a></p>")
-				.Append("<table><th>zip</th><th>State</th><th>Map</th><th>Appointment Link</th>");
-			foreach (var success in successfulChecks)
-			{
-				htmlStringBuilder
-				.Append("<tr>")
-				.Append($"<td>{success.zipCode}</td>")
-				.Append($"<td>{success.stateName}</td>")
-				.Append($"<td><a target='_blank' href='")
-				.Append($"https://www.google.com/maps/place/{success.zipCode},%20{success.stateCode},%20USA")
-				.Append($"'>{success.zipCode}</a></td>")
-				.Append($"<td><a href='https://www.walgreens.com/findcare/vaccination/covid-19/location-screening'>Book Appointment</td>");
-			}
-			htmlStringBuilder
-				.Append("</tr>")
-				.Append("</table>")
-				.Append("</body></html>");
-			return htmlStringBuilder;
-		}
-
-		private static StringBuilder CreateDefaultCSS()
-		{
-			var cssBuilder = new StringBuilder();
-			cssBuilder.AppendLine("tbody tr:nth-child(odd) { background-color: #ccc;}");
-			cssBuilder.AppendLine("table { width:50%; }");
-			cssBuilder.AppendLine(@"td 
-{
-			height: 50px;
-			width: 50px;
-			}
-
-			td 
-			{
-				text-align: center;
-				vertical-align: middle;
-			}
-			");
-	 		return cssBuilder;
-		}
-
-		private static StringBuilder CreateIndexPage(string successObjectName)
-		{
-			var indexContentbBuilder = new StringBuilder();
-			indexContentbBuilder.Append("<html><header><title>Available Vaccination Appointments List as of ")
-				.Append($"{DateTime.UtcNow} </title>")
-				.Append("</header><body>")
-				.Append("<ul>")
-				.Append($"<a href='")
-				.Append(successObjectName)
-				.Append("'>Available Appointments List as of ")
-				.Append(DateTime.UtcNow)
-				.Append(" UTC</a>")
-				.Append("</ul>")
-				.Append("</body></html>");
-			return indexContentbBuilder;
 		}
 
 		private List<string> LoadZipsFromFile(string logPath)

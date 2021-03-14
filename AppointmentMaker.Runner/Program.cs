@@ -36,6 +36,9 @@ namespace AppointmentMaker
 			builder.RegisterType<Runner>().As<IRunner>().SingleInstance();
 			builder.RegisterType<AppointmentChecker>().As<IAppointmentChecker>().SingleInstance();
 			builder.RegisterType<PublishingManager>().As<IPublishingManager>().SingleInstance();
+			builder.RegisterType<InputManager>().As<IInputManager>().SingleInstance();
+
+
 			_container = builder.Build();
 		}
 	}

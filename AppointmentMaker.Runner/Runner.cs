@@ -20,21 +20,28 @@ namespace AppointmentMaker.Runer
 		public List<AppointmentResponse> _failedChecks = new List<AppointmentResponse>();
 		public int daysAheadToLook = 0;
 		private string _zipConfigPath;
+		private string _csvConfigPath;
 		private Stopwatch stopWatch;
 		private IAppointmentChecker _appointmentChecker;
 		private IPublishingManager _publishingManager;
+		private IInputManager _inputManager;
 		private Configuration _configuration;
 
-		public Runner(IAppointmentChecker appointmentChecker, IPublishingManager publishingManager)
+		public Runner(IAppointmentChecker appointmentChecker
+			, IPublishingManager publishingManager
+			, IInputManager inputManager)
 		{
 			var configTextRaw = File.ReadAllText(@"./config/configuration.json");
 			_configuration = JsonConvert.DeserializeObject<Configuration>(configTextRaw);
 			_zipConfigPath = _configuration.zipFilePath;
+			_csvConfigPath = _configuration.csvFilePath;
 			stopWatch = new Stopwatch();
 			stopWatch.Start();
 
 			_appointmentChecker = appointmentChecker;
 			_publishingManager = publishingManager;
+			_inputManager = inputManager;
+
 			AppointmentChecker.SetAppointmentEndpointUrl(_configuration.endpoint);
 
 			_appointmentChecker.SetHeader("accept-language", "en-US,en;q=0.9");
@@ -46,7 +53,9 @@ namespace AppointmentMaker.Runer
 			// TODO: This is super-hacky, but should work for continuous run.
 			while (true)
 			{
+				
 				await SingleRun();
+				
 			}
 		}
 
@@ -54,7 +63,9 @@ namespace AppointmentMaker.Runer
 		{
 			List<Task> tasksToAwait = new List<Task>();
 
-			List<string> zipCodesToTry = LoadZipsFromFile(_zipConfigPath);
+			List<string> zipCodesToTry = _inputManager.LoadZipsFromFile(_zipConfigPath);
+
+			List<ZipWithCoordinates> zipCodesToTryWithMeta = _inputManager.LoadZipsFromCSV(_csvConfigPath);
 
 			foreach (string zip in zipCodesToTry.Distinct())
 			{
@@ -89,6 +100,8 @@ namespace AppointmentMaker.Runer
 			StringBuilder csvData = VaccineDataGenerator.GenerateCSV(_successfulChecks);
 			StringBuilder defaultCSS = VaccineDataGenerator.CreateDefaultCSS();
 			StringBuilder htmlData = VaccineDataGenerator.GenerateHTML(_successfulChecks, csvFilename);
+			StringBuilder mapHtml = VaccineDataGenerator.GenerateMap(_successfulChecks);
+
 
 			_publishingManager.Configure(_configuration.bucket, _configuration.awsAccessKey, _configuration.awsSecretKey);
 			await _publishingManager.PublishAsync(csvData.ToString()
@@ -96,25 +109,18 @@ namespace AppointmentMaker.Runer
 
 			await _publishingManager.PublishAsync(htmlData.ToString(), "index.html");
 			await _publishingManager.PublishAsync(defaultCSS.ToString(), "default.css");
+			await _publishingManager.PublishAsync(mapHtml.ToString(), "map.html");
 
 			File.WriteAllText(
 				$"C:\\temp\\currentZipAppointmentsAvailable_{now.Hour}_{now.Minute}_{now.Second}.csv"
 				, csvData.ToString());
+
+			_successfulChecks.Clear();
+			_failedChecks.Clear();
+
 		}
 
-		private List<string> LoadZipsFromFile(string logPath)
-		{
-			try
-			{
-				var logFile = File.ReadAllLines(logPath);
-				return new List<string>(logFile);
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e);
-				throw;
-			}
-		}
+		
 
 		private async Task CheckSingleAppointment(double latitude, double longitude, DateTime startDate, string zipCode = "")
 		{

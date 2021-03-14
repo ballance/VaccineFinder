@@ -9,5 +9,6 @@
 		public string awsSecretKey { get; set; }
 		public string bucket { get; set; }
 		public string zipFilePath { get; set; }
+		public string csvFilePath { get; set; }
 	}
 }

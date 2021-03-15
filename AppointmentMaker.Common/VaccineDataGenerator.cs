@@ -97,36 +97,76 @@ td
 				.AppendLine("<div id='map'></div>")
 				.AppendLine("<p>Source code is available with MIT License <a href='https://github.com/ballance/VaccineFinder'>here</a></p>")
 				.AppendLine(@"
-<script>
-
-function initMap() {
-  ");
+<script>");
 			foreach (var check in distinctSuccessfulChecks)
 			{
-				htmlStringBuilder.AppendLine($"const loc_{check.zipCode} = {{ lat: {check.Latitude}, lng: {check.Longitude} }};");
+				//htmlStringBuilder.AppendLine($"const loc_{check.zipCode} = {{ lat: {check.Latitude}, lng: {check.Longitude} }};");
 			}
+
+			htmlStringBuilder.AppendLine("var markers = [");
 
 			foreach (var check2 in distinctSuccessfulChecks)
 			{
-				htmlStringBuilder.AppendLine($"const marker_{check2.zipCode} = new google.maps.Marker({{ position:  loc_{check2.zipCode}, map: map}});");
+				htmlStringBuilder.AppendLine($"['{check2.zipCode}',{check2.Latitude},{check2.Longitude}],");
+				//htmlStringBuilder.AppendLine($"const marker_{check2.zipCode} = new google.maps.Marker({{ position: loc_{check2.zipCode}, title:'{check2.zipCode}'}});");
 			}
+			htmlStringBuilder.AppendLine("];");
+			htmlStringBuilder.Append(@"
+
+function initMap() {
+  ");
+			
+
+
 
 			htmlStringBuilder.AppendLine(@"
   const centerOfUsa = { lat: 38.90575952495474, lng: -98.34887021172555 };
- 
+  const svgMarker = {
+    path:
+      'M10.453 14.016l6.563-6.609-1.406-1.406-5.156 5.203-2.063-2.109-1.406 1.406zM12 2.016q2.906 0 4.945 2.039t2.039 4.945q0 1.453-0.727 3.328t-1.758 3.516-2.039 3.070-1.711 2.273l-0.75 0.797q-0.281-0.328-0.75-0.867t-1.688-2.156-2.133-3.141-1.664-3.445-0.75-3.375q0-2.906 2.039-4.945t4.945-2.039z',
+    fillColor: 'green',
+    fillOpacity: 0.6,
+    strokeWeight: 0,
+    rotation: 0,
+    scale: 2,
+    anchor: new google.maps.Point(15, 30),
+  };
+
   const map = new google.maps.Map(document.getElementById('map'), {
 
 	zoom: 4,
 	center: centerOfUsa,
   });
-  new google.maps.Marker({
-    position: centerOfUsa,
-    map,
-    title: 'Hello World!',
-  });
+");
+  
 
-}");
-			
+
+			htmlStringBuilder.AppendLine(@"
+	for( i = 0; i < markers.length; i++ ) {
+        var position = new google.maps.LatLng(markers[i][1], markers[i][2]);
+        //bounds.extend(position);
+        marker = new google.maps.Marker({
+            position: position,
+            map: map,
+			icon: svgMarker,
+			label: { color: '#00aaff', fontWeight: 'bold', fontSize: '14px', text: markers[i][0] },
+            title: markers[i][0]
+        });
+        
+        // Automatically center the map fitting all markers on the screen
+        //map.fitBounds(bounds);
+    }
+
+");
+
+			foreach (var check2 in distinctSuccessfulChecks)
+			{
+				//htmlStringBuilder.AppendLine($"marker_{check2.zipCode}.setMap(map);");
+			}
+
+			htmlStringBuilder.AppendLine("}");
+
+
 			htmlStringBuilder.AppendLine("</script>")
 
 //			htmlStringBuilder.Append(@"<script async src='https://www.googletagmanager.com/gtag/js?id=G-N1CYCESJX7'></script>

@@ -165,7 +165,7 @@ namespace AppointmentMaker.Runer
 			}
 			if (longitude != null)
 			{
-				response.Longitude = latitude.Value;
+				response.Longitude = longitude.Value;
 			}
 			return response;
 		}

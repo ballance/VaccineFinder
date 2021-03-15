@@ -351,3 +351,4 @@ MigrationBackup/
 
 headers.json
 configuration.json
+configurationOld.json

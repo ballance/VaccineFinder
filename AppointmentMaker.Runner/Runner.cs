@@ -53,9 +53,7 @@ namespace AppointmentMaker.Runer
 			// TODO: This is super-hacky, but should work for continuous run.
 			while (true)
 			{
-				
 				await SingleRun();
-				
 			}
 		}
 
@@ -67,12 +65,13 @@ namespace AppointmentMaker.Runer
 
 			List<ZipWithCoordinates> zipCodesToTryWithMeta = _inputManager.LoadZipsFromCSV(_csvConfigPath);
 
-			foreach (string zip in zipCodesToTry.Distinct())
+			foreach (var zipWithMeta in zipCodesToTryWithMeta.Distinct())
 			{
 				var startDate = DateTime.Now.AddDays(1);
 				for (int j = 0; j <= daysAheadToLook; j++)
 				{
-					var task = CheckSingleAppointment(0, 0, startDate.AddDays(j), zip);
+					var task = CheckSingleAppointment(zipWithMeta.Latitude, 
+						zipWithMeta.Longitude, startDate.AddDays(j), zipWithMeta.Zip, zipWithMeta.LocationText);
 					tasksToAwait.Add(task);
 				}
 			}
@@ -100,14 +99,14 @@ namespace AppointmentMaker.Runer
 			StringBuilder csvData = VaccineDataGenerator.GenerateCSV(_successfulChecks);
 			StringBuilder defaultCSS = VaccineDataGenerator.CreateDefaultCSS();
 			StringBuilder htmlData = VaccineDataGenerator.GenerateHTML(_successfulChecks, csvFilename);
-			StringBuilder mapHtml = VaccineDataGenerator.GenerateMap(_successfulChecks);
+			StringBuilder mapHtml = VaccineDataGenerator.GenerateMap(_successfulChecks, _configuration.googleApiKey);
 
 
 			_publishingManager.Configure(_configuration.bucket, _configuration.awsAccessKey, _configuration.awsSecretKey);
 			await _publishingManager.PublishAsync(csvData.ToString()
 				, csvFilename);
 
-			await _publishingManager.PublishAsync(htmlData.ToString(), "index.html");
+			await _publishingManager.PublishAsync(htmlData.ToString(), "index2.html");
 			await _publishingManager.PublishAsync(defaultCSS.ToString(), "default.css");
 			await _publishingManager.PublishAsync(mapHtml.ToString(), "map.html");
 
@@ -122,7 +121,7 @@ namespace AppointmentMaker.Runer
 
 		
 
-		private async Task CheckSingleAppointment(double latitude, double longitude, DateTime startDate, string zipCode = "")
+		private async Task CheckSingleAppointment(double? latitude, double? longitude, DateTime startDate, string zipCode, string locationText)
 		{
 			AppointmentResponse result = new AppointmentResponse() { success = false };
 
@@ -130,15 +129,17 @@ namespace AppointmentMaker.Runer
 			{
 				var appointmentRequest = new AppointmentRequest();
 
-				if (string.IsNullOrEmpty(zipCode))
-				{
-					appointmentRequest.Build("99", latitude, longitude, startDate.ToString("yyyy-MM-dd"), 25);
-				}
-				else
-				{
+				//if (string.IsNullOrEmpty(zipCode))
+				//{
+				//	appointmentRequest.Build("99", latitude, longitude, startDate.ToString("yyyy-MM-dd"), 25);
+				//}
+				//else
+				//{
 					appointmentRequest.Build("99", zipCode, startDate.ToString("yyyy-MM-dd"), 25);
-				}
+				//}
 				result = await _appointmentChecker.CheckForAppointmentAsync(appointmentRequest.ToString());
+				result = AddLatLongIfAvailable(result, latitude, longitude);
+				result.stateName = locationText;
 			}
 			catch (Exception ex)
 			{
@@ -154,6 +155,19 @@ namespace AppointmentMaker.Runer
 				_successfulChecks.Add(result);
 				Console.Write($"«{result.zipCode}/{result.stateCode}»");
 			}
+		}
+
+		private AppointmentResponse AddLatLongIfAvailable(AppointmentResponse response, double? latitude, double? longitude)
+		{
+			if (latitude != null)
+			{
+				response.Latitude = latitude.Value;
+			}
+			if (longitude != null)
+			{
+				response.Longitude = latitude.Value;
+			}
+			return response;
 		}
 	}
 }

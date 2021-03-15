@@ -19,11 +19,14 @@ namespace AppointmentMaker.Common.models
 		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
 		private string zipCode;
 
-		public void Build(string serviceId, double latitude, double longitude, string startDateTime , int radius)
+		public void Build(string serviceId, double? latitude, double? longitude, string startDateTime , int radius)
 		{
 			this.serviceId = serviceId;
 			this.radius = radius;
-			this.position = new Position() { Latitude = latitude, Longitude = longitude };
+			if (latitude.HasValue && longitude.HasValue)
+			{
+				this.position = new Position() { Latitude = latitude.Value, Longitude = longitude.Value };
+			}
 			this.appointmentAvailability = new AppointmentAvailability() { startDateTime = startDateTime };
 		}
 

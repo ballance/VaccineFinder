@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using AppointmentMaker.Common.models;
 
@@ -80,47 +81,75 @@ td
 			return cssBuilder;
 		}
 
-		public static StringBuilder GenerateMap(IEnumerable<AppointmentResponse> successfulChecks)
+		public static StringBuilder GenerateMap(IEnumerable<AppointmentResponse> successfulChecks, string googleApiKey)
 		{
+			var distinctSuccessfulChecks = successfulChecks.GroupBy(x => x.zipCode, (key, group) => group.First());
+
+
 			StringBuilder htmlStringBuilder = new StringBuilder();
 			htmlStringBuilder.Append("<html><header>")
-				.Append($"<title>Vaccination appointments available by ZIP Code at {DateTime.UtcNow} UTC. </title>")
-				.Append("<link rel='stylesheet' href='default.css'>")
-				.Append("</header><body>")
-				.Append("<h2>Vaccination appointments available by ZIP Code</h2>")
-				.Append(@"
-  <h3>Vaccination Availablility Map</h3>
-    <div id='map'></div>")
-				.Append("<p>Source code is available with MIT License <a href='https://github.com/ballance/VaccineFinder'>here</a></p>")
-				.Append(@"
-
-
-	<script src='https://maps.googleapis.com/maps/api/js?key=AIzaSyDd2PrS4tXsz60XTglvD3aFjoXaSm7NhlQ&callback=initMap&libraries=&v=weekly' async
-	></script>
+				.AppendLine($"<title>Vaccination appointments available by ZIP Code at {DateTime.UtcNow} UTC. </title>")
+				.AppendLine("<link rel='stylesheet' href='default.css'>")
+				.AppendLine($"<script async defer src='https://maps.googleapis.com/maps/api/js?key={googleApiKey}&callback=initMap'></script>")
+				//.Append("<script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?key=AIzaSyDd2PrS4tXsz60XTglvD3aFjoXaSm7NhlQ&v=3.exp'></script>")
+				.AppendLine("</header><body>")
+				.AppendLine("<h2>Vaccination appointments available by ZIP Code</h2>")
+				.AppendLine("<div id='map'></div>")
+				.AppendLine("<p>Source code is available with MIT License <a href='https://github.com/ballance/VaccineFinder'>here</a></p>")
+				.AppendLine(@"
 <script>
+
 function initMap() {
-  const uluru = { lat: -25.344, lng: 131.036 };
-  // The map, centered at Uluru
+  ");
+			htmlStringBuilder.AppendLine(@"
+  const centerOfUsa = { lat: 38.90575952495474, lng: -98.34887021172555 };
+ 
   const map = new google.maps.Map(document.getElementById('map'), {
+
 	zoom: 4,
-	center: uluru,
+	center: centerOfUsa,
   });
-  // The marker, positioned at Uluru
-  const marker = new google.maps.Marker({
-    position: uluru,
-	map: map,
+  new google.maps.Marker({
+    position: centerOfUsa,
+    map,
+    title: 'Hello World!',
   });
-}
-</script>
-")
-				.Append(@"<script async src='https://www.googletagmanager.com/gtag/js?id=G-N1CYCESJX7'></script><script>
-  window.dataLayer = window.dataLayer || [];
-			function gtag() { dataLayer.push(arguments); }
-			gtag('js', new Date());
-			gtag('config', 'G-N1CYCESJX7');
-</script>")
-				.Append("</body></html>");
+
+}");
+			foreach (var check in distinctSuccessfulChecks)
+			{
+				htmlStringBuilder.AppendLine($"const loc_{check.zipCode} = {{ lat: {check.Latitude}, lng: {check.Longitude} }};");
+			}
+
+			foreach (var check2 in distinctSuccessfulChecks)
+			{
+				htmlStringBuilder.AppendLine($"const marker_{check2.zipCode} = new google.maps.Marker({{ position:  loc_{check2.zipCode}, map: map}});");
+			}
+			htmlStringBuilder.AppendLine("</script>")
+
+//			htmlStringBuilder.Append(@"<script async src='https://www.googletagmanager.com/gtag/js?id=G-N1CYCESJX7'></script>
+//  window.dataLayer = window.dataLayer || [];
+//			function gtag() { dataLayer.push(arguments); }
+//			gtag('js', new Date());
+//			gtag('config', 'G-N1CYCESJX7');
+//</script>").Append(Environment.NewLine)
+				.AppendLine("</body></html>");
 			return htmlStringBuilder;
+		}
+
+		public static StringBuilder GenerateMap(List<AppointmentResponse> successfulChecks, object googleApiKey)
+		{
+			throw new NotImplementedException();
+		}
+
+		public static StringBuilder GenerateMap(List<AppointmentResponse> successfulChecks, object googleApiKey)
+		{
+			throw new NotImplementedException();
+		}
+
+		public static StringBuilder GenerateMap(List<AppointmentResponse> successfulChecks, object googleApiKey)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

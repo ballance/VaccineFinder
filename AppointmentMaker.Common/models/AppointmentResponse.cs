@@ -15,6 +15,8 @@ namespace AppointmentMaker.Common.models
 
 		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
 		public AppointmentError Error { get; set; }
+		public double Longitude { get; set; }
+		public double Latitude { get; set; }
 
 		public override string ToString()
 		{

@@ -27,6 +27,10 @@ namespace AppointmentMaker.Runer
 				var zipWithCoordinatesList = new List<ZipWithCoordinates>();
 				foreach (var line in csvLines)
 				{
+					if (line.StartsWith("ZIP_CODE"))
+					{
+						continue;
+					}
 					var splitByComma = line.Split(',');
 					var zipWithCoordinates = new ZipWithCoordinates();
 					zipWithCoordinates.Zip = splitByComma[0];

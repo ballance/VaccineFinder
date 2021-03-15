@@ -10,5 +10,7 @@
 		public string bucket { get; set; }
 		public string zipFilePath { get; set; }
 		public string csvFilePath { get; set; }
+
+		public string googleApiKey { get; set; }
 	}
 }

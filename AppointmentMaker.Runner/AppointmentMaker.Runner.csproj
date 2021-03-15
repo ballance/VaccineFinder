@@ -10,6 +10,9 @@
   <ItemGroup>
     <None Remove="config\configuration.json" />
     <None Remove="config\configuration.json.example.json" />
+    <None Remove="config\configurationOld.json" />
+    <None Remove="config\zipsToSearchWithCoordinates.csv" />
+    <None Remove="config\zipsToSearchWithCoordinatesShort.csv" />
     <None Remove="log4net.config" />
     <None Remove="config\zipsToSearch.txt" />
     <None Remove="config\zipsToSearchPositives.txt" />
@@ -18,10 +21,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="config\configurationOld.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="config\configuration.json.example.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="config\zipsToSearchPositives.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\zipsToSearchWithCoordinatesShort.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\zipsToSearchWithCoordinates.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <EmbeddedResource Include="config\zipsToSearchUSA20000.txt">

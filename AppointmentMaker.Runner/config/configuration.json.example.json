@@ -6,5 +6,6 @@
   "awsSecretKey" : "YOUR_AWS_SECRET",
   "bucket": "YOUR_BUCKET",
   "zipFilePath": "YOUR_ZIP_PATH",
-  "csvFilePath": "YOUR_CSV_PATH"
+  "csvFilePath": "YOUR_CSV_PATH",
+  "yourGoogleApiKey": "AIzaSyDd2PrS4tXsz60XTglvD3aFjoXaSm7NhlQ
 }

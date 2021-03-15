@@ -7,5 +7,5 @@
   "bucket": "YOUR_BUCKET",
   "zipFilePath": "YOUR_ZIP_PATH",
   "csvFilePath": "YOUR_CSV_PATH",
-  "yourGoogleApiKey": "AIzaSyDd2PrS4tXsz60XTglvD3aFjoXaSm7NhlQ
+  "yourGoogleApiKey": "YOUR_GOOGLE_API_KEY"
 }

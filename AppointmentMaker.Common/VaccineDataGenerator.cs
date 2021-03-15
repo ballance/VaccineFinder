@@ -101,6 +101,16 @@ td
 
 function initMap() {
   ");
+			foreach (var check in distinctSuccessfulChecks)
+			{
+				htmlStringBuilder.AppendLine($"const loc_{check.zipCode} = {{ lat: {check.Latitude}, lng: {check.Longitude} }};");
+			}
+
+			foreach (var check2 in distinctSuccessfulChecks)
+			{
+				htmlStringBuilder.AppendLine($"const marker_{check2.zipCode} = new google.maps.Marker({{ position:  loc_{check2.zipCode}, map: map}});");
+			}
+
 			htmlStringBuilder.AppendLine(@"
   const centerOfUsa = { lat: 38.90575952495474, lng: -98.34887021172555 };
  
@@ -116,15 +126,7 @@ function initMap() {
   });
 
 }");
-			foreach (var check in distinctSuccessfulChecks)
-			{
-				htmlStringBuilder.AppendLine($"const loc_{check.zipCode} = {{ lat: {check.Latitude}, lng: {check.Longitude} }};");
-			}
-
-			foreach (var check2 in distinctSuccessfulChecks)
-			{
-				htmlStringBuilder.AppendLine($"const marker_{check2.zipCode} = new google.maps.Marker({{ position:  loc_{check2.zipCode}, map: map}});");
-			}
+			
 			htmlStringBuilder.AppendLine("</script>")
 
 //			htmlStringBuilder.Append(@"<script async src='https://www.googletagmanager.com/gtag/js?id=G-N1CYCESJX7'></script>
@@ -135,21 +137,6 @@ function initMap() {
 //</script>").Append(Environment.NewLine)
 				.AppendLine("</body></html>");
 			return htmlStringBuilder;
-		}
-
-		public static StringBuilder GenerateMap(List<AppointmentResponse> successfulChecks, object googleApiKey)
-		{
-			throw new NotImplementedException();
-		}
-
-		public static StringBuilder GenerateMap(List<AppointmentResponse> successfulChecks, object googleApiKey)
-		{
-			throw new NotImplementedException();
-		}
-
-		public static StringBuilder GenerateMap(List<AppointmentResponse> successfulChecks, object googleApiKey)
-		{
-			throw new NotImplementedException();
 		}
 	}
 }

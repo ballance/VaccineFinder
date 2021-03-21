@@ -54,6 +54,8 @@ namespace AppointmentMaker.Runer
 			while (true)
 			{
 				await SingleRun();
+				// Wait 30 minutes to run again
+				await Task.Delay(new TimeSpan(0, 30, 0));
 			}
 		}
 
@@ -90,8 +92,8 @@ namespace AppointmentMaker.Runer
 			Console.WriteLine($"failures: {_failedChecks.Count}");
 
 			Console.WriteLine();
-			log.Info($"Success Rate: {Math.Round((double)_failedChecks.Count / (_failedChecks.Count + _successfulChecks.Count), 2)}%");
-			Console.WriteLine($"Success Rate: {Math.Round((double)_failedChecks.Count / (_failedChecks.Count + _successfulChecks.Count), 2)}%");
+			log.Info($"Success Rate: {Math.Round((double)_failedChecks.Count / (_failedChecks.Count + _successfulChecks.Count), 2)*100}%");
+			Console.WriteLine($"Success Rate: {Math.Round((double)_successfulChecks.Count / (_failedChecks.Count + _successfulChecks.Count), 2)*100}%");
 			Console.WriteLine();
 
 			var now = DateTime.Now;
@@ -106,7 +108,7 @@ namespace AppointmentMaker.Runer
 			await _publishingManager.PublishAsync(csvData.ToString()
 				, csvFilename);
 
-			await _publishingManager.PublishAsync(htmlData.ToString(), "index2.html");
+			await _publishingManager.PublishAsync(htmlData.ToString(), "index.html");
 			await _publishingManager.PublishAsync(defaultCSS.ToString(), "default.css");
 			await _publishingManager.PublishAsync(mapHtml.ToString(), "map.html");
 
@@ -129,14 +131,8 @@ namespace AppointmentMaker.Runer
 			{
 				var appointmentRequest = new AppointmentRequest();
 
-				//if (string.IsNullOrEmpty(zipCode))
-				//{
-				//	appointmentRequest.Build("99", latitude, longitude, startDate.ToString("yyyy-MM-dd"), 25);
-				//}
-				//else
-				//{
-					appointmentRequest.Build("99", zipCode, startDate.ToString("yyyy-MM-dd"), 25);
-				//}
+				appointmentRequest.Build("99", zipCode, startDate.ToString("yyyy-MM-dd"), 25);
+
 				result = await _appointmentChecker.CheckForAppointmentAsync(appointmentRequest.ToString());
 				result = AddLatLongIfAvailable(result, latitude, longitude);
 				result.stateName = locationText;

@@ -11,7 +11,7 @@ namespace AppointmentMaker.Runer
 		public static StringBuilder GenerateCSV(IEnumerable<AppointmentResponse> successfulChecks)
 		{
 			StringBuilder zipos = new StringBuilder();
-			zipos.AppendLine("zip,state,map");
+			zipos.AppendLine("zip,Location,map");
 			foreach (var success in successfulChecks)
 			{
 				zipos.Append($"{success.zipCode},{success.stateName},https://www.google.com/maps/place/{success.zipCode}/{Environment.NewLine}");
@@ -30,7 +30,8 @@ namespace AppointmentMaker.Runer
 				.Append("<h2>Vaccination appointments available by ZIP Code</h2>")
 				.Append($"<p>Last updated: {DateTime.UtcNow} UTC.<br />")
 				.Append($"<a href='{csvFilename}'>Download as CSV</a></p>")
-				.Append("<table><th>ZIP</th><th>State</th><th>Map</th><th>Appointment Link</th>");
+				.Append($"<a href='map.html'>View on a map</a></p>")
+				.Append("<table><th>ZIP</th><th>Location</th><th>Map</th><th>Appointment Link</th>");
 			foreach (var success in successfulChecks)
 			{
 				htmlStringBuilder
@@ -74,7 +75,7 @@ td
 }
 
 #map {
-  height: 400px;
+  height: 80%;
   width: 100%;
 }
 			");
@@ -91,24 +92,18 @@ td
 				.AppendLine($"<title>Vaccination appointments available by ZIP Code at {DateTime.UtcNow} UTC. </title>")
 				.AppendLine("<link rel='stylesheet' href='default.css'>")
 				.AppendLine($"<script async defer src='https://maps.googleapis.com/maps/api/js?key={googleApiKey}&callback=initMap'></script>")
-				//.Append("<script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?key=AIzaSyDd2PrS4tXsz60XTglvD3aFjoXaSm7NhlQ&v=3.exp'></script>")
 				.AppendLine("</header><body>")
 				.AppendLine("<h2>Vaccination appointments available by ZIP Code</h2>")
 				.AppendLine("<div id='map'></div>")
 				.AppendLine("<p>Source code is available with MIT License <a href='https://github.com/ballance/VaccineFinder'>here</a></p>")
 				.AppendLine(@"
 <script>");
-			foreach (var check in distinctSuccessfulChecks)
-			{
-				//htmlStringBuilder.AppendLine($"const loc_{check.zipCode} = {{ lat: {check.Latitude}, lng: {check.Longitude} }};");
-			}
 
 			htmlStringBuilder.AppendLine("var markers = [");
 
 			foreach (var check2 in distinctSuccessfulChecks)
 			{
 				htmlStringBuilder.AppendLine($"['{check2.zipCode}',{check2.Latitude},{check2.Longitude}],");
-				//htmlStringBuilder.AppendLine($"const marker_{check2.zipCode} = new google.maps.Marker({{ position: loc_{check2.zipCode}, title:'{check2.zipCode}'}});");
 			}
 			htmlStringBuilder.AppendLine("];");
 			htmlStringBuilder.Append(@"
@@ -137,14 +132,12 @@ function initMap() {
 	zoom: 4,
 	center: centerOfUsa,
   });
+  var bounds = new google.maps.LatLngBounds();
 ");
-  
-
-
 			htmlStringBuilder.AppendLine(@"
 	for( i = 0; i < markers.length; i++ ) {
         var position = new google.maps.LatLng(markers[i][1], markers[i][2]);
-        //bounds.extend(position);
+        bounds.extend(position);
         marker = new google.maps.Marker({
             position: position,
             map: map,
@@ -154,9 +147,8 @@ function initMap() {
         });
         
         // Automatically center the map fitting all markers on the screen
-        //map.fitBounds(bounds);
+        map.fitBounds(bounds);
     }
-
 ");
 
 			foreach (var check2 in distinctSuccessfulChecks)
@@ -167,14 +159,14 @@ function initMap() {
 			htmlStringBuilder.AppendLine("}");
 
 
-			htmlStringBuilder.AppendLine("</script>")
+			htmlStringBuilder.AppendLine("</script>");
 
-//			htmlStringBuilder.Append(@"<script async src='https://www.googletagmanager.com/gtag/js?id=G-N1CYCESJX7'></script>
-//  window.dataLayer = window.dataLayer || [];
-//			function gtag() { dataLayer.push(arguments); }
-//			gtag('js', new Date());
-//			gtag('config', 'G-N1CYCESJX7');
-//</script>").Append(Environment.NewLine)
+			htmlStringBuilder.Append(@"<script async src='https://www.googletagmanager.com/gtag/js?id=G-N1CYCESJX7'></script>
+  <script>window.dataLayer = window.dataLayer || [];
+			function gtag() { dataLayer.push(arguments); }
+			gtag('js', new Date());
+			gtag('config', 'G-N1CYCESJX7');
+</script>").Append(Environment.NewLine)
 				.AppendLine("</body></html>");
 			return htmlStringBuilder;
 		}

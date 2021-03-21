@@ -19,11 +19,15 @@ namespace AppointmentMaker.Common
 
 		private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 		private HttpClient _reentrantClient;
+		private DateTime _timeOfLastRun;
+		private Random _rando;
 
 		public AppointmentChecker()
 		{
 			_reentrantClient = new HttpClient();
-
+			_rando = new Random();
+			// Assume it has been a threshold of time since our last run of overall execution.
+			_timeOfLastRun = DateTime.Now.AddSeconds(-1);
 			_reentrantClient.DefaultRequestHeaders
 				  .Accept
 				  .Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -53,6 +57,13 @@ namespace AppointmentMaker.Common
 				HttpResponseMessage responseBody;
 				try
 				{
+					while (DateTime.Now - _timeOfLastRun < TimeSpan.FromSeconds(2))
+					{
+						var delayInMs = Convert.ToInt32(Math.Round(100 * _rando.NextDouble(), 0));
+						await Task.Delay(delayInMs);
+					}
+					
+					_timeOfLastRun = DateTime.Now;
 					responseBody = await _reentrantClient.PostAsync(new Uri(appointmentEndpointUrl),
 						stringContent);
 				}
@@ -63,6 +74,11 @@ namespace AppointmentMaker.Common
 				}
 
 				string rawResponse = await InterpretReponse(responseBody);
+				if (rawResponse.Contains("<H1>Access Denied</H1>"))
+				{
+					Console.Write("D");
+					return new AppointmentResponse() { Error = new AppointmentError() { Message = "Access Denied" } };
+				}
 				CheckForErrorsAndIncludeInAppointmentResponse(rawResponse);
 				AppointmentResponse appointmentResponse = JsonConvert.DeserializeObject<AppointmentResponse>(rawResponse);
 				appointmentResponse.success = true;
